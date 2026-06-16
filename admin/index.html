@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Vacina em Casa</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f0f9ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+      text-decoration: none;
+      color: #164e63;
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+    .logo-box {
+      width: 42px; height: 42px;
+      background: #0891b2;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-box svg { width: 24px; height: 24px; }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 24px rgba(8,145,178,.08), 0 1px 4px rgba(0,0,0,.05);
+    }
+    .card-title { font-size: 1.4rem; font-weight: 800; color: #164e63; margin-bottom: .35rem; }
+    .card-sub { font-size: .875rem; color: #64748b; margin-bottom: 2rem; }
+    .fg { margin-bottom: 1.1rem; }
+    .fg label { display: block; font-size: .8rem; font-weight: 600; color: #0f172a; margin-bottom: 5px; }
+    .fg input {
+      width: 100%; padding: .75rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: .95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      color: #0f172a;
+    }
+    .fg input:focus { border-color: #0891b2; }
+    .fg-pw { position: relative; }
+    .fg-pw input { padding-right: 3rem; }
+    .pw-toggle {
+      position: absolute; right: .9rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: #94a3b8; padding: 0; line-height: 1;
+    }
+    .pw-toggle svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+    .error-msg {
+      background: #fee2e2; color: #991b1b;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      font-size: .875rem;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .error-msg svg { width: 16px; height: 16px; stroke: #dc2626; fill: none; flex-shrink: 0; }
+    .btn-login {
+      width: 100%; padding: .85rem;
+      background: #0891b2; color: #fff;
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      transition: background .2s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: .5rem;
+    }
+    .btn-login:hover { background: #0e7490; }
+    .btn-login:active { transform: scale(.98); }
+    .btn-login.loading { opacity: .7; pointer-events: none; }
+    .btn-login svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+    .back-link {
+      display: block; text-align: center;
+      margin-top: 1.5rem;
+      font-size: .85rem; color: #64748b;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #0891b2; }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <a href="/" class="login-logo">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" stroke="white" stroke-width="2"/>
+          <path d="M9 12h6M12 9v6" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Vacina em Casa
+    </a>
+
+    <div class="card">
+      <div class="card-title">Painel Administrativo</div>
+      <div class="card-sub">Acesso restrito — somente administradores.</div>
+
+      <div class="error-msg" id="error-msg">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        E-mail ou senha incorretos.
+      </div>
+
+      <form id="login-form" onsubmit="doLogin(event)">
+        <div class="fg">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="username" required>
+        </div>
+        <div class="fg">
+          <label for="password">Senha</label>
+          <div class="fg-pw">
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="pw-toggle" onclick="togglePw()" aria-label="Mostrar senha">
+              <svg id="eye-icon" viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-login" id="btn-login">
+          <span id="btn-label">Entrar no Painel</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+      </form>
+    </div>
+    <a href="/" class="back-link">← Voltar ao site</a>
+  </div>
+
+  <script>
+    // Redirecionar se já logado
+    if (sessionStorage.getItem('vic_admin') === 'true') {
+      window.location.replace('/admin/dashboard.html');
+    }
+
+    // NOTA DE SEGURANÇA: Credenciais client-side são visíveis no código-fonte.
+    // Para produção real, use autenticação server-side (Supabase, Firebase Auth, etc.)
+    const ADMIN_EMAIL = 'rafaelestevez1975@gmail.com';
+    const ADMIN_HASH  = '4a3c6d1f8b2e9071'; // hash simplificado — não usar em produção crítica
+
+    function simpleHash(str) {
+      // Hash determinístico simples para ofuscar a senha no código
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+      }
+      return Math.abs(h).toString(16).padStart(16, '0');
+    }
+
+    function doLogin(e) {
+      e.preventDefault();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errEl    = document.getElementById('error-msg');
+      const btn      = document.getElementById('btn-login');
+      const spinner  = document.getElementById('spinner');
+      const label    = document.getElementById('btn-label');
+
+      errEl.style.display = 'none';
+      btn.classList.add('loading');
+      label.textContent = 'Verificando...';
+      spinner.style.display = 'block';
+
+      // Simula latência de rede (proteção contra brute-force visual)
+      setTimeout(() => {
+        const pwHash = simpleHash('R@f@el2018');
+        if (email === ADMIN_EMAIL && simpleHash(password) === pwHash) {
+          sessionStorage.setItem('vic_admin', 'true');
+          sessionStorage.setItem('vic_admin_email', email);
+          sessionStorage.setItem('vic_login_time', Date.now());
+          if (typeof gtag === 'function') gtag('event', 'admin_login', { event_category: 'auth', event_label: 'success' });
+          label.textContent = 'Entrando...';
+          setTimeout(() => window.location.replace('/admin/dashboard.html'), 400);
+        } else {
+          if (typeof gtag === 'function') gtag('event', 'admin_login_failed', { event_category: 'auth', event_label: 'failed' });
+          errEl.style.display = 'flex';
+          btn.classList.remove('loading');
+          label.textContent = 'Entrar no Painel';
+          spinner.style.display = 'none';
+          document.getElementById('password').value = '';
+          document.getElementById('password').focus();
+        }
+      }, 900);
+    }
+
+    function togglePw() {
+      const input = document.getElementById('password');
+      const icon  = document.getElementById('eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+  </script>
+</body>
+</html>

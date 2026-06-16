@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vacina em Casa — Vacinação Domiciliar com Agendamento Online</title>
   <meta name="description" content="Vacinação domiciliar com agendamento online. Enviamos enfermeiros até sua casa para vacinar bebês, crianças, adultos e idosos. Seguro, rápido e conveniente.">
+
+  <!-- Google Analytics GA4 — substitua G-XXXXXXXXXX pelo seu Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', {
+      page_title: document.title,
+      page_location: window.location.href
+    });
+
+    // Eventos personalizados
+    function gaEvent(action, category, label, value) {
+      gtag('event', action, { event_category: category, event_label: label, value: value });
+    }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -734,7 +752,7 @@
     </div>
     <div class="foot-bottom">
       <p>© 2026 Vacina em Casa. Todos os direitos reservados.</p>
-      <p>COREN-SP · ANVISA · Ministério da Saúde</p>
+      <p>COREN-SP · ANVISA · Ministério da Saúde · <a href="/admin/" style="color:rgba(255,255,255,.25);text-decoration:none;font-size:.75rem;" onmouseover="this.style.color='rgba(255,255,255,.5)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Admin</a></p>
     </div>
   </div>
 </footer>
@@ -820,7 +838,11 @@
   }
 
   // Modal
-  function openModal() { document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; }
+  function openModal(source) {
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow='hidden';
+    if (typeof gaEvent === 'function') gaEvent('open_booking_modal', 'engagement', source || 'unknown');
+  }
   function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow=''; }
   function closeOnOverlay(e) { if (e.target===document.getElementById('modal')) closeModal(); }
 

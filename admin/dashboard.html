@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — Vacina em Casa</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Google Analytics GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #0f172a; display: flex; min-height: 100vh; }
+
+    :root {
+      --p: #0891b2; --pd: #0e7490; --pdd: #164e63; --pl: #e0f2fe; --pll: #f0f9ff;
+      --sf: #f8fafc; --br: #e2e8f0; --ts: #475569; --tm: #94a3b8;
+      --g: #059669; --gl: #d1fae5;
+      --a: #f59e0b; --al: #fef3c7;
+      --r: #ef4444; --rl: #fee2e2;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--pdd);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 10;
+    }
+    .sb-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      text-decoration: none; color: #fff;
+      font-weight: 800; font-size: 1rem;
+    }
+    .sb-logo-box { width: 34px; height: 34px; background: var(--p); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sb-logo-box svg { width: 20px; height: 20px; }
+    .sb-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .sb-section { padding: .25rem 1rem .5rem; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: rgba(255,255,255,.3); margin-top: .75rem; }
+    .sb-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: .65rem 1.25rem;
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      font-size: .875rem; font-weight: 500;
+      border-radius: 0;
+      transition: all .15s;
+      cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: inherit;
+    }
+    .sb-link:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .sb-link.active { background: rgba(255,255,255,.12); color: #fff; border-left: 3px solid var(--p); padding-left: calc(1.25rem - 3px); }
+    .sb-link svg { width: 17px; height: 17px; stroke: currentColor; fill: none; flex-shrink: 0; }
+    .sb-link .badge { margin-left: auto; background: var(--p); color: #fff; font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 100px; }
+    .sb-bottom { border-top: 1px solid rgba(255,255,255,.1); padding: 1rem; }
+    .sb-user { display: flex; align-items: center; gap: 10px; }
+    .sb-av { width: 34px; height: 34px; border-radius: 50%; background: var(--p); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .8rem; color: #fff; flex-shrink: 0; }
+    .sb-name { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.85); }
+    .sb-role { font-size: .7rem; color: rgba(255,255,255,.4); }
+    .btn-logout { margin-left: auto; background: none; border: none; cursor: pointer; color: rgba(255,255,255,.4); transition: color .2s; padding: 4px; }
+    .btn-logout:hover { color: #fff; }
+    .btn-logout svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+
+    /* ── MAIN ── */
+    .main { margin-left: 240px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid var(--br);
+      padding: 0 1.75rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 5;
+    }
+    .topbar-title { font-size: 1.05rem; font-weight: 700; color: var(--pdd); }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .topbar-date { font-size: .8rem; color: var(--tm); }
+    .btn-new {
+      background: var(--p); color: #fff; border: none; cursor: pointer;
+      font-size: .8rem; font-weight: 600; padding: .5rem 1rem; border-radius: 8px;
+      display: flex; align-items: center; gap: 6px; font-family: inherit;
+      transition: background .2s;
+    }
+    .btn-new:hover { background: var(--pd); }
+    .btn-new svg { width: 15px; height: 15px; stroke: currentColor; fill: none; }
+
+    /* ── CONTENT ── */
+    .content { padding: 1.75rem; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── METRICS ── */
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+    .metric {
+      background: #fff; border-radius: 14px; padding: 1.25rem 1.5rem;
+      border: 1px solid var(--br);
+    }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+    .metric-label { font-size: .75rem; font-weight: 600; color: var(--tm); text-transform: uppercase; letter-spacing: .06em; }
+    .metric-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .metric-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+    .mi-blue { background: var(--pl); color: var(--p); }
+    .mi-green { background: var(--gl); color: var(--g); }
+    .mi-amber { background: var(--al); color: var(--a); }
+    .mi-red { background: var(--rl); color: var(--r); }
+    .metric-value { font-size: 1.9rem; font-weight: 900; color: var(--pdd); line-height: 1; }
+    .metric-delta { font-size: .75rem; font-weight: 600; margin-top: 4px; }
+    .delta-up { color: var(--g); }
+    .delta-dn { color: var(--r); }
+
+    /* ── GRID 2COL ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.75rem; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.75rem; }
+
+    /* ── CARDS ── */
+    .card { background: #fff; border-radius: 14px; border: 1px solid var(--br); padding: 1.25rem 1.5rem; }
+    .card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.1rem; }
+    .card-title { font-size: .9rem; font-weight: 700; color: var(--pdd); }
+    .card-action { font-size: .78rem; color: var(--p); font-weight: 600; text-decoration: none; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .card-action:hover { text-decoration: underline; }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--tm); padding: .5rem .75rem; text-align: left; border-bottom: 1px solid var(--br); }
+    td { font-size: .85rem; padding: .75rem; border-bottom: 1px solid #f1f5f9; color: #0f172a; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--pll); }
+
+    /* ── STATUS PILLS ── */
+    .pill { display: inline-flex; align-items: center; gap: 5px; font-size: .7rem; font-weight: 700; padding: 3px 10px; border-radius: 100px; }
+    .pill-confirmed { background: var(--gl); color: #065f46; }
+    .pill-pending { background: var(--al); color: #92400e; }
+    .pill-cancelled { background: var(--rl); color: #991b1b; }
+    .pill-done { background: #e0e7ff; color: #3730a3; }
+    .pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ── DONUT PLACEHOLDER ── */
+    .donut-wrap { display: flex; align-items: center; gap: 1.5rem; }
+    .donut-svg { flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: .6rem; }
+    .dl-item { display: flex; align-items: center; gap: 8px; font-size: .82rem; }
+    .dl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dl-label { color: var(--ts); }
+    .dl-val { font-weight: 700; color: #0f172a; margin-left: auto; padding-left: 1rem; }
+
+    /* ── MINI BAR ── */
+    .bar-list { display: flex; flex-direction: column; gap: .85rem; }
+    .bar-item label { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: 4px; }
+    .bar-item label span:first-child { color: var(--ts); font-weight: 500; }
+    .bar-item label span:last-child { font-weight: 700; color: #0f172a; }
+    .bar-track { height: 6px; background: var(--br); border-radius: 100px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 100px; background: var(--p); }
+
+    /* ── QUICK ACTIONS ── */
+    .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .qa-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      padding: 1.1rem; border-radius: 12px; border: 1.5px solid var(--br);
+      cursor: pointer; background: var(--sf); font-family: inherit;
+      transition: all .2s; text-decoration: none;
+    }
+    .qa-btn:hover { border-color: var(--p); background: var(--pll); }
+    .qa-btn svg { width: 22px; height: 22px; stroke: var(--p); fill: none; }
+    .qa-btn span { font-size: .78rem; font-weight: 600; color: var(--pdd); text-align: center; }
+
+    /* ── GA EMBED ── */
+    .ga-note { background: var(--pll); border: 1px solid var(--pl); border-radius: 12px; padding: 1.25rem; display: flex; gap: 12px; align-items: flex-start; }
+    .ga-note svg { width: 20px; height: 20px; stroke: var(--p); fill: none; flex-shrink: 0; margin-top: 2px; }
+    .ga-note p { font-size: .875rem; color: var(--pdd); line-height: 1.6; }
+    .ga-note a { color: var(--p); font-weight: 600; }
+    .ga-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+    .ga-stat { background: #fff; border: 1px solid var(--br); border-radius: 12px; padding: 1rem; text-align: center; }
+    .ga-stat .n { font-size: 1.6rem; font-weight: 900; color: var(--pdd); }
+    .ga-stat .l { font-size: .72rem; color: var(--tm); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+
+    /* ── SETTINGS ── */
+    .settings-grid { display: flex; flex-direction: column; gap: 1rem; }
+    .sfg label { display: block; font-size: .8rem; font-weight: 600; color: #0f172a; margin-bottom: 5px; }
+    .sfg input, .sfg select, .sfg textarea {
+      width: 100%; padding: .7rem 1rem;
+      border: 1.5px solid var(--br); border-radius: 10px;
+      font-size: .9rem; font-family: inherit;
+      outline: none; transition: border-color .2s; color: #0f172a;
+    }
+    .sfg input:focus, .sfg select:focus { border-color: var(--p); }
+    .sfg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-save { background: var(--p); color: #fff; border: none; cursor: pointer; font-size: .9rem; font-weight: 700; padding: .7rem 1.75rem; border-radius: 10px; font-family: inherit; transition: background .2s; }
+    .btn-save:hover { background: var(--pd); }
+    .section-divider { border: none; border-top: 1px solid var(--br); margin: .25rem 0; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: .75rem 0; border-bottom: 1px solid var(--br); }
+    .toggle-info h4 { font-size: .875rem; font-weight: 600; color: #0f172a; }
+    .toggle-info p { font-size: .78rem; color: var(--tm); }
+    .toggle { position: relative; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--br); border-radius: 100px; cursor: pointer; transition: background .2s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
+    .toggle input:checked + .toggle-slider { background: var(--p); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3-1 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; }
+      .main { margin-left: 200px; }
+    }
+    @media (max-width: 640px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="/" class="sb-logo">
+    <div class="sb-logo-box">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" stroke="white" stroke-width="2"/>
+        <path d="M9 12h6M12 9v6" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    Vacina em Casa
+  </a>
+
+  <nav class="sb-nav">
+    <div class="sb-section">Principal</div>
+    <button class="sb-link active" onclick="showPanel('overview', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Visão Geral
+    </button>
+    <button class="sb-link" onclick="showPanel('agendamentos', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agendamentos
+      <span class="badge">8</span>
+    </button>
+    <button class="sb-link" onclick="showPanel('vacinas', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="11" y2="16"/></svg>
+      Catálogo de Vacinas
+    </button>
+    <button class="sb-link" onclick="showPanel('clientes', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Clientes
+    </button>
+
+    <div class="sb-section">Analytics</div>
+    <button class="sb-link" onclick="showPanel('analytics', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Google Analytics
+    </button>
+
+    <div class="sb-section">Configurações</div>
+    <button class="sb-link" onclick="showPanel('settings', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </button>
+  </nav>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-av">RE</div>
+      <div>
+        <div class="sb-name">Rafael Estevez</div>
+        <div class="sb-role">Administrador</div>
+      </div>
+      <button class="btn-logout" onclick="logout()" title="Sair">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Visão Geral</div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbar-date"></span>
+      <button class="btn-new" onclick="showPanel('agendamentos', document.querySelector('.sb-link:nth-child(2)'))">
+        <svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Agendamento
+      </button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ── PANEL: OVERVIEW ── -->
+    <div class="panel active" id="panel-overview">
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-top">
+            <span class="metric-label">Agendamentos Hoje</span>
+            <div class="metric-icon mi-blue"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          </div>
+          <div class="metric-value">8</div>
+          <div class="metric-delta delta-up">↑ 2 vs. ontem</div>
+        </div>
+        <div class="metric">
+          <div class="metric-top">
+            <span class="metric-label">Receita do Mês</span>
+            <div class="metric-icon mi-green"><svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="metric-value">R$&nbsp;18.4k</div>
+          <div class="metric-delta delta-up">↑ 12% vs. mês anterior</div>
+        </div>
+        <div class="metric">
+          <div class="metric-top">
+            <span class="metric-label">Pacientes no Mês</span>
+            <div class="metric-icon mi-amber"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          </div>
+          <div class="metric-value">247</div>
+          <div class="metric-delta delta-up">↑ 8% vs. mês anterior</div>
+        </div>
+        <div class="metric">
+          <div class="metric-top">
+            <span class="metric-label">Cancelamentos</span>
+            <div class="metric-icon mi-red"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          </div>
+          <div class="metric-value">3</div>
+          <div class="metric-delta delta-dn">↑ 1 vs. ontem</div>
+        </div>
+      </div>
+
+      <div class="grid-3-1">
+        <!-- Agendamentos recentes -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-title">Agendamentos de Hoje</span>
+            <button class="card-action" onclick="showPanel('agendamentos', document.querySelectorAll('.sb-link')[1])">Ver todos →</button>
+          </div>
+          <table>
+            <thead><tr><th>Paciente</th><th>Vacina</th><th>Horário</th><th>Endereço</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Ana Beatriz Silva</strong></td><td>Influenza</td><td>08:30</td><td>Moema, SP</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+              <tr><td><strong>João Pedro Santos</strong></td><td>Hexavalente</td><td>09:00</td><td>Pinheiros, SP</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+              <tr><td><strong>Maria Helena Costa</strong></td><td>Covid-19</td><td>10:30</td><td>Vila Mariana, SP</td><td><span class="pill pill-pending">Pendente</span></td></tr>
+              <tr><td><strong>Carlos Mendes Jr.</strong></td><td>HPV</td><td>11:00</td><td>Itaim Bibi, SP</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+              <tr><td><strong>Fernanda Rocha</strong></td><td>dT + Hep B</td><td>14:00</td><td>Brooklin, SP</td><td><span class="pill pill-pending">Pendente</span></td></tr>
+              <tr><td><strong>Pedro Alves</strong></td><td>Pneumocócica 23</td><td>15:30</td><td>Perdizes, SP</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+              <tr><td><strong>Empresa TechCorp</strong></td><td>Gripe (30 func.)</td><td>16:00</td><td>Berrini, SP</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+              <tr><td><strong>Luisa Ferreira</strong></td><td>Febre Amarela</td><td>17:30</td><td>Lapa, SP</td><td><span class="pill pill-pending">Pendente</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Coluna direita -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <!-- Vacinas mais vendidas -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Top Vacinas — Junho</span></div>
+            <div class="bar-list">
+              <div class="bar-item"><label><span>Influenza</span><span>87</span></label><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
+              <div class="bar-item"><label><span>Covid-19</span><span>64</span></label><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div></div>
+              <div class="bar-item"><label><span>HPV</span><span>43</span></label><div class="bar-track"><div class="bar-fill" style="width:49%"></div></div></div>
+              <div class="bar-item"><label><span>Hexavalente</span><span>38</span></label><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div></div>
+              <div class="bar-item"><label><span>Febre Amarela</span><span>15</span></label><div class="bar-track"><div class="bar-fill" style="width:17%"></div></div></div>
+            </div>
+          </div>
+
+          <!-- Ações rápidas -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Ações Rápidas</span></div>
+            <div class="qa-grid">
+              <button class="qa-btn" onclick="showPanel('agendamentos', document.querySelectorAll('.sb-link')[1])">
+                <svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Novo Agendamento</span>
+              </button>
+              <button class="qa-btn" onclick="showPanel('analytics', document.querySelectorAll('.sb-link')[5])">
+                <svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Ver Analytics</span>
+              </button>
+              <a class="qa-btn" href="/" target="_blank">
+                <svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span>Ver Site</span>
+              </a>
+              <button class="qa-btn" onclick="showPanel('settings', document.querySelectorAll('.sb-link')[6])">
+                <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33"/></svg>
+                <span>Configurações</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANEL: AGENDAMENTOS ── -->
+    <div class="panel" id="panel-agendamentos">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Todos os Agendamentos</span>
+          <div style="display:flex;gap:.75rem;align-items:center;">
+            <select style="padding:.4rem .75rem;border:1.5px solid var(--br);border-radius:8px;font-size:.8rem;font-family:inherit;outline:none;color:#0f172a;">
+              <option>Todos os status</option>
+              <option>Confirmado</option>
+              <option>Pendente</option>
+              <option>Cancelado</option>
+              <option>Realizado</option>
+            </select>
+            <input type="date" style="padding:.4rem .75rem;border:1.5px solid var(--br);border-radius:8px;font-size:.8rem;font-family:inherit;outline:none;">
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Paciente</th><th>Vacina(s)</th><th>Data/Hora</th><th>Endereço</th><th>Valor</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1042</td><td><strong>Ana Beatriz Silva</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 99201-4455</span></td><td>Influenza</td><td>Hoje 08:30</td><td>Moema, SP</td><td>R$ 185</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1041</td><td><strong>João Pedro Santos</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 98800-1122</span></td><td>Hexavalente</td><td>Hoje 09:00</td><td>Pinheiros, SP</td><td>R$ 350</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1040</td><td><strong>Maria Helena Costa</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 97711-3344</span></td><td>Covid-19</td><td>Hoje 10:30</td><td>Vila Mariana, SP</td><td>R$ 220</td><td><span class="pill pill-pending">Pendente</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1039</td><td><strong>Carlos Mendes Jr.</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 96600-5566</span></td><td>HPV Gardasil 9</td><td>Hoje 11:00</td><td>Itaim Bibi, SP</td><td>R$ 450</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1038</td><td><strong>Fernanda Rocha</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 95500-7788</span></td><td>dT + Hepatite B</td><td>Hoje 14:00</td><td>Brooklin, SP</td><td>R$ 570</td><td><span class="pill pill-pending">Pendente</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1037</td><td><strong>Pedro Alves</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 94400-9900</span></td><td>Pneumocócica 23</td><td>Hoje 15:30</td><td>Perdizes, SP</td><td>R$ 420</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1036</td><td><strong>TechCorp (30 func.)</strong><br><span style="font-size:.75rem;color:var(--tm)">RH: carlos@techcorp.com.br</span></td><td>Influenza × 30</td><td>Hoje 16:00</td><td>Berrini, SP</td><td>R$ 4.800</td><td><span class="pill pill-confirmed">Confirmado</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1035</td><td><strong>Luisa Ferreira</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 93300-1122</span></td><td>Febre Amarela</td><td>Hoje 17:30</td><td>Lapa, SP</td><td>R$ 290</td><td><span class="pill pill-pending">Pendente</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1034</td><td><strong>Roberto Lima</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 92200-3344</span></td><td>Herpes Zóster</td><td>Ontem 14:00</td><td>Santana, SP</td><td>R$ 890</td><td><span class="pill pill-done">Realizado</span></td></tr>
+            <tr><td style="color:var(--tm);font-size:.75rem;">#1033</td><td><strong>Sra. Helena Martins</strong><br><span style="font-size:.75rem;color:var(--tm)">(11) 91100-5566</span></td><td>Covid-19 + Gripe</td><td>Ontem 10:00</td><td>Mooca, SP</td><td>R$ 405</td><td><span class="pill pill-done">Realizado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PANEL: VACINAS ── -->
+    <div class="panel" id="panel-vacinas">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Catálogo de Vacinas</span>
+          <button class="card-action">+ Adicionar vacina</button>
+        </div>
+        <table>
+          <thead><tr><th>Vacina</th><th>Faixa Etária</th><th>Doses</th><th>Preço</th><th>Estoque</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hexavalente</strong></td><td>Bebês 0–2 anos</td><td>3</td><td>R$ 350,00</td><td style="color:var(--g);font-weight:600;">42 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>Rotavírus</strong></td><td>Bebês 0–6 meses</td><td>2</td><td>R$ 280,00</td><td style="color:var(--a);font-weight:600;">8 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>Pneumocócica 13</strong></td><td>Bebês / Adultos</td><td>3+1</td><td>R$ 320,00</td><td style="color:var(--g);font-weight:600;">25 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>Influenza (Gripe)</strong></td><td>Todas as idades</td><td>1/ano</td><td>R$ 185,00</td><td style="color:var(--g);font-weight:600;">150 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>Covid-19 (atualizada)</strong></td><td>Todas as idades</td><td>1/ano</td><td>R$ 220,00</td><td style="color:var(--g);font-weight:600;">88 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>HPV Gardasil 9</strong></td><td>9–45 anos</td><td>2–3</td><td>R$ 450,00</td><td style="color:var(--r);font-weight:600;">3 doses</td><td><span class="pill pill-pending">Estoque Baixo</span></td></tr>
+            <tr><td><strong>Febre Amarela</strong></td><td>≥9 meses</td><td>1</td><td>R$ 290,00</td><td style="color:var(--g);font-weight:600;">31 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>Herpes Zóster (Shingrix)</strong></td><td>Idosos 50+</td><td>2</td><td>R$ 890,00</td><td style="color:var(--g);font-weight:600;">12 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>Meningocócica ACWY</strong></td><td>Crianças / Adultos</td><td>1</td><td>R$ 380,00</td><td style="color:var(--a);font-weight:600;">5 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+            <tr><td><strong>dT — Difteria/Tétano</strong></td><td>Adultos / 10 anos</td><td>1</td><td>R$ 260,00</td><td style="color:var(--g);font-weight:600;">40 doses</td><td><span class="pill pill-confirmed">Ativo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PANEL: CLIENTES ── -->
+    <div class="panel" id="panel-clientes">
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Base de Clientes</span>
+          <input type="text" placeholder="Buscar cliente..." style="padding:.45rem .9rem;border:1.5px solid var(--br);border-radius:8px;font-size:.82rem;font-family:inherit;outline:none;width:220px;">
+        </div>
+        <table>
+          <thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Última Vacina</th><th>Total Visitas</th><th>Próxima Dose</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Ana Beatriz Silva</strong></td><td>(11) 99201-4455</td><td>ana@email.com</td><td>Influenza — Jun/26</td><td>4</td><td>Jun/27 (Gripe)</td></tr>
+            <tr><td><strong>João Pedro Santos</strong></td><td>(11) 98800-1122</td><td>joao@email.com</td><td>Hexavalente — Jun/26</td><td>3</td><td>Ago/26 (3ª dose)</td></tr>
+            <tr><td><strong>Maria Helena Costa</strong></td><td>(11) 97711-3344</td><td>maria@email.com</td><td>Covid-19 — Jun/26</td><td>2</td><td>Jun/27 (confirmação)</td></tr>
+            <tr><td><strong>Carlos Mendes Jr.</strong></td><td>(11) 96600-5566</td><td>carlos@email.com</td><td>HPV — Jun/26</td><td>2</td><td>Ago/26 (2ª dose)</td></tr>
+            <tr><td><strong>Roberto Lima</strong></td><td>(11) 92200-3344</td><td>roberto@email.com</td><td>Herpes Zóster — Jun/25</td><td>5</td><td>Ago/26 (2ª dose)</td></tr>
+            <tr><td><strong>Sra. Helena Martins</strong></td><td>(11) 91100-5566</td><td>helena@email.com</td><td>Covid-19 — Jun/25</td><td>7</td><td>Jun/27 (anual)</td></tr>
+            <tr><td><strong>TechCorp (RH)</strong></td><td>(11) 3000-0001</td><td>rh@techcorp.com.br</td><td>Gripe Corporativa — Jun/26</td><td>1</td><td>Jun/27 (anual)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PANEL: ANALYTICS ── -->
+    <div class="panel" id="panel-analytics">
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-hdr"><span class="card-title">Google Analytics 4 — Integração</span></div>
+        <div class="ga-note">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>
+            O GA4 está integrado ao site com o ID <strong>G-XXXXXXXXXX</strong> (placeholder). Para ativar os dados reais, substitua <code>G-XXXXXXXXXX</code> pelo seu Measurement ID no arquivo <code>index.html</code> e em <code>admin/dashboard.html</code>. Acesse sua conta em <a href="https://analytics.google.com" target="_blank" rel="noopener">analytics.google.com</a> → Administrador → Criar Propriedade GA4 → Obter o ID de medição.
+            <br><br>
+            <strong>Eventos rastreados automaticamente:</strong> page_view, scroll, click, session_start — mais evento personalizado <code>open_booking_modal</code> (dispara ao abrir o formulário de agendamento).
+          </p>
+        </div>
+        <div class="ga-stats">
+          <div class="ga-stat"><div class="n" id="ga-users">—</div><div class="l">Usuários Ativos</div></div>
+          <div class="ga-stat"><div class="n" id="ga-sessions">—</div><div class="l">Sessões / 30 dias</div></div>
+          <div class="ga-stat"><div class="n" id="ga-conversion">—</div><div class="l">Taxa de Conversão</div></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Principais páginas visitadas</span></div>
+          <div class="bar-list">
+            <div class="bar-item"><label><span>/ (Home)</span><span>1.842</span></label><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
+            <div class="bar-item"><label><span>#vacinas</span><span>1.204</span></label><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div></div>
+            <div class="bar-item"><label><span>#empresas</span><span>548</span></label><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div></div>
+            <div class="bar-item"><label><span>#faq</span><span>402</span></label><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div>
+            <div class="bar-item"><label><span>#como-funciona</span><span>318</span></label><div class="bar-track"><div class="bar-fill" style="width:17%"></div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Origem do tráfego</span></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#e2e8f0" stroke-width="18"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#0891b2" stroke-width="18" stroke-dasharray="100 151" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#059669" stroke-width="18" stroke-dasharray="60 191" stroke-dashoffset="-100" transform="rotate(-90 55 55)"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="40 211" stroke-dashoffset="-160" transform="rotate(-90 55 55)"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#e0e7ff" stroke-width="18" stroke-dasharray="51 200" stroke-dashoffset="-200" transform="rotate(-90 55 55)"/>
+            </svg>
+            <div class="donut-legend">
+              <div class="dl-item"><div class="dl-dot" style="background:#0891b2"></div><span class="dl-label">Orgânico (Google)</span><span class="dl-val">40%</span></div>
+              <div class="dl-item"><div class="dl-dot" style="background:#059669"></div><span class="dl-label">Redes Sociais</span><span class="dl-val">24%</span></div>
+              <div class="dl-item"><div class="dl-dot" style="background:#f59e0b"></div><span class="dl-label">WhatsApp / Direto</span><span class="dl-val">16%</span></div>
+              <div class="dl-item"><div class="dl-dot" style="background:#e0e7ff"></div><span class="dl-label">Outros</span><span class="dl-val">20%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Acessar Google Analytics completo</span></div>
+        <a href="https://analytics.google.com" target="_blank" rel="noopener" class="btn-new" style="display:inline-flex;text-decoration:none;">
+          <svg viewBox="0 0 24 24" stroke-width="2" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Abrir Google Analytics →
+        </a>
+        <p style="font-size:.78rem;color:var(--tm);margin-top:.75rem;">Abre na sua conta Google Analytics com todos os relatórios em tempo real, funil de conversão e comportamento de usuários.</p>
+      </div>
+    </div>
+
+    <!-- ── PANEL: SETTINGS ── -->
+    <div class="panel" id="panel-settings">
+      <div class="grid-2">
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Informações da Empresa</span></div>
+            <div class="settings-grid">
+              <div class="sfg-row">
+                <div class="sfg"><label>Nome da empresa</label><input type="text" value="Vacina em Casa"></div>
+                <div class="sfg"><label>CNPJ</label><input type="text" value="00.000.000/0001-00"></div>
+              </div>
+              <div class="sfg"><label>E-mail de contato</label><input type="email" value="contato@vacinaemcasa.com.br"></div>
+              <div class="sfg-row">
+                <div class="sfg"><label>WhatsApp</label><input type="tel" value="(11) 99999-9999"></div>
+                <div class="sfg"><label>Telefone</label><input type="tel" value="(11) 3000-0001"></div>
+              </div>
+              <div class="sfg"><label>Endereço (sede)</label><input type="text" value="São Paulo, SP"></div>
+              <button class="btn-save">Salvar Informações</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Google Analytics</span></div>
+            <div class="settings-grid">
+              <div class="sfg"><label>Measurement ID (GA4)</label><input type="text" id="ga-id-input" value="G-XXXXXXXXXX" placeholder="G-XXXXXXXXXX"></div>
+              <p style="font-size:.78rem;color:var(--tm);">Cole aqui o Measurement ID da sua propriedade GA4. Após salvar, substitua manualmente nos arquivos index.html e admin/dashboard.html.</p>
+              <button class="btn-save" onclick="saveGaId()">Salvar Measurement ID</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Conta Administradora</span></div>
+            <div class="settings-grid">
+              <div class="sfg"><label>Nome</label><input type="text" value="Rafael Estevez"></div>
+              <div class="sfg"><label>E-mail</label><input type="email" value="rafaelestevez1975@gmail.com" disabled style="background:#f8fafc;color:#94a3b8;"></div>
+              <div class="sfg"><label>Nova senha</label><input type="password" placeholder="••••••••"></div>
+              <div class="sfg"><label>Confirmar nova senha</label><input type="password" placeholder="••••••••"></div>
+              <button class="btn-save">Atualizar Conta</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Notificações</span></div>
+            <div class="toggle-row">
+              <div class="toggle-info"><h4>Novo agendamento</h4><p>Receber e-mail a cada novo pedido</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><h4>Agendamento pendente</h4><p>Alerta de pedidos sem confirmação</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><h4>Estoque baixo</h4><p>Alerta quando vacina chega a 5 doses</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row" style="border-bottom:none;">
+              <div class="toggle-info"><h4>Relatório semanal</h4><p>Resumo de métricas toda segunda-feira</p></div>
+              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // Auth guard
+  if (sessionStorage.getItem('vic_admin') !== 'true') {
+    window.location.replace('/admin/');
+  }
+
+  // Session timeout: 8 hours
+  const loginTime = parseInt(sessionStorage.getItem('vic_login_time') || '0');
+  if (Date.now() - loginTime > 8 * 60 * 60 * 1000) {
+    sessionStorage.removeItem('vic_admin');
+    window.location.replace('/admin/');
+  }
+
+  // Date in topbar
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+  // Panel navigation
+  const panels = { overview: 'Visão Geral', agendamentos: 'Agendamentos', vacinas: 'Catálogo de Vacinas', clientes: 'Clientes', analytics: 'Google Analytics', settings: 'Configurações' };
+
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    document.querySelectorAll('.sb-link').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.getElementById('topbar-title').textContent = panels[id] || id;
+    if (typeof gtag === 'function') gtag('event', 'admin_page_view', { event_category: 'admin', event_label: id });
+  }
+
+  // Logout
+  function logout() {
+    sessionStorage.removeItem('vic_admin');
+    sessionStorage.removeItem('vic_admin_email');
+    sessionStorage.removeItem('vic_login_time');
+    window.location.replace('/admin/');
+  }
+
+  // GA ID save helper
+  function saveGaId() {
+    const id = document.getElementById('ga-id-input').value.trim();
+    alert('Measurement ID salvo: ' + id + '\n\nSubstitua manualmente G-XXXXXXXXXX nos arquivos:\n• index.html (3 ocorrências)\n• admin/index.html (2 ocorrências)\n• admin/dashboard.html (2 ocorrências)');
+  }
+
+  // Simulate GA stats loading
+  setTimeout(() => {
+    document.getElementById('ga-users').textContent = '—';
+    document.getElementById('ga-sessions').textContent = '—';
+    document.getElementById('ga-conversion').textContent = '—';
+  }, 1000);
+</script>
+</body>
+</html>
