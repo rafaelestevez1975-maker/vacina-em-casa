@@ -1117,5 +1117,42 @@
     });
   });
 </script>
+
+<!-- ADMIN FLOATING BUTTON -->
+<a href="/admin/dashboard.html" id="admin-fab" title="Painel Admin" style="display:none;position:fixed;bottom:90px;right:1.5rem;z-index:9998;width:42px;height:42px;background:#1e293b;border-radius:12px;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:transform .2s,box-shadow .2s;text-decoration:none;" onmouseover="this.style.transform='scale(1.08)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,0,0,.25)'">
+  <svg viewBox="0 0 24 24" stroke-width="2" style="width:20px;height:20px;stroke:#94a3b8;fill:none;display:block;margin:auto;">
+    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+  </svg>
+</a>
+<script>
+  // Show admin FAB only if logged in
+  if (sessionStorage.getItem('vic_admin') === 'true') {
+    const fab = document.getElementById('admin-fab');
+    if (fab) fab.style.display = 'flex';
+  }
+
+  // Apply saved site content from editor
+  (function applySiteContent() {
+    try {
+      const c = JSON.parse(localStorage.getItem('vic_site_content') || '{}');
+      if (!Object.keys(c).length) return;
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.innerHTML = val; };
+      const setVal = (id, val, attr) => { const el = document.getElementById(id); if (el && val) { if (attr) el[attr] = val; else el.textContent = val; } };
+      // Hero
+      if (c['hero-title']) {
+        const h = document.querySelector('.hero h1');
+        if (h) h.innerHTML = c['hero-title'] + (c['hero-highlight'] ? ' <span class="hl">' + c['hero-highlight'] + '</span>' : '');
+      }
+      if (c['hero-sub']) { const el = document.querySelector('.hero .hero-sub'); if (el) el.textContent = c['hero-sub']; }
+      // WhatsApp
+      if (c['whatsapp']) {
+        document.querySelectorAll('a[href*="wa.me"]').forEach(a => {
+          const msg = c['wa-msg'] ? encodeURIComponent(c['wa-msg']) : '';
+          a.href = 'https://wa.me/' + c['whatsapp'] + (msg ? '?text=' + msg : '');
+        });
+      }
+    } catch(e) {}
+  })();
+</script>
 </body>
 </html>
