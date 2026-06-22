@@ -3,35 +3,35 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
   <url>
-    <loc>https://www.vcinaemcasa.com.br/</loc>
+    <loc>https://www.vacinaemcasa.com/</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://www.vcinaemcasa.com.br/#vacinas</loc>
+    <loc>https://www.vacinaemcasa.com/#vacinas</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.vcinaemcasa.com.br/#calendario</loc>
+    <loc>https://www.vacinaemcasa.com/#calendario</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.vcinaemcasa.com.br/#empresas</loc>
+    <loc>https://www.vacinaemcasa.com/#empresas</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.vcinaemcasa.com.br/#equipe</loc>
+    <loc>https://www.vacinaemcasa.com/#equipe</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
