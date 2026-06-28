@@ -866,8 +866,8 @@
             <div style="font-size:1.05rem;font-weight:700;color:#0f172a;margin-bottom:.4rem;">Conectar Google Analytics</div>
             <div style="font-size:.85rem;color:#64748b;max-width:460px;line-height:1.6;">Faça login com sua conta Google para ver sessões, usuários, páginas, dispositivos e muito mais diretamente aqui no painel.</div>
           </div>
-          <!-- Setup Client ID -->
-          <div id="ga-setup-step" style="width:100%;max-width:480px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem 1.25rem;text-align:left;">
+          <!-- Setup Client ID (oculto — Client ID fixo no código) -->
+          <div id="ga-setup-step" style="display:none;width:100%;max-width:480px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem 1.25rem;text-align:left;">
             <div style="font-size:.82rem;font-weight:600;color:#374151;margin-bottom:.5rem;">⚙️ Configuração única (1ª vez)</div>
             <div style="font-size:.78rem;color:#6b7280;line-height:1.6;margin-bottom:.75rem;">
               Insira o <strong>OAuth 2.0 Client ID</strong> do Google Cloud.
@@ -1445,8 +1445,7 @@
 
   // ─── GOOGLE ANALYTICS 4 — DASHBOARD INTEGRADO ─────────────────────
   const GA4_PROPERTY = '542545371';
-  const GA_REDIRECT_URI = 'https://vacinaemcasa.com/admin/dashboard.html';
-  const GA_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
+  const GA_CLIENT_ID = '485364058460-i7ikcre9k1l7abcm9vbiel58rq1034fe.apps.googleusercontent.com';
   let gaToken = null;
   let gaChartTimeline = null, gaChartDevices = null, gaChartChannels = null;
 
@@ -1464,15 +1463,10 @@
   }
 
   function initGAPanel() {
-    const clientId = localStorage.getItem('vic_ga_client_id') || '';
     const bar = document.getElementById('ga-connect-bar');
     const setupStep = document.getElementById('ga-setup-step');
-    const input = document.getElementById('ga-client-id-input');
     if (bar) bar.style.display = '';
-    if (clientId) {
-      if (input) input.value = clientId;
-      if (setupStep) setupStep.style.display = 'none';
-    }
+    if (setupStep) setupStep.style.display = 'none';
 
     // 1) Token vindo do redirect OAuth (hash da URL)
     const hashToken = gaExtractTokenFromHash();
@@ -1511,23 +1505,11 @@
   }
 
   function gaSignIn() {
-    const clientId = localStorage.getItem('vic_ga_client_id') || '';
-    const errEl = document.getElementById('ga-signin-error');
-    if (errEl) errEl.style.display = 'none';
-    if (!clientId) {
-      const s = document.getElementById('ga-setup-step');
-      if (s) s.style.display = '';
-      gaShowError('Configure o Client ID primeiro e clique em Salvar.');
-      return;
-    }
-    // Redirect OAuth — sem popup, sem biblioteca externa
-    var gaRedirect = 'https://vacinaemcasa.com/admin/dashboard.html';
-    var gaScope    = 'https://www.googleapis.com/auth/analytics.readonly';
     var url = 'https://accounts.google.com/o/oauth2/v2/auth'
-      + '?client_id=' + encodeURIComponent(clientId)
-      + '&redirect_uri=' + encodeURIComponent(gaRedirect)
+      + '?client_id=' + encodeURIComponent(GA_CLIENT_ID)
+      + '&redirect_uri=' + encodeURIComponent('https://vacinaemcasa.com/admin/dashboard.html')
       + '&response_type=token'
-      + '&scope=' + encodeURIComponent(gaScope)
+      + '&scope=' + encodeURIComponent('https://www.googleapis.com/auth/analytics.readonly')
       + '&prompt=select_account';
     window.location.href = url;
   }
