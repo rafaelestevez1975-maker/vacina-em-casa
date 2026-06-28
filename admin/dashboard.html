@@ -11,8 +11,6 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <!-- Google Identity Services (OAuth) -->
-  <script src="https://accounts.google.com/gsi/client" async></script>
 
   <!-- Google Analytics GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RMSVFZ8V4"></script>
@@ -861,7 +859,7 @@
     <div class="panel" id="panel-analytics">
 
       <!-- ── Barra de conexão GA ── -->
-      <div id="ga-connect-bar" class="card" style="margin-bottom:1rem;display:none;">
+      <div id="ga-connect-bar" class="card" style="margin-bottom:1rem;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;padding:2rem 1.5rem;text-align:center;">
           <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#e0f2fe,#f0fdf4);display:flex;align-items:center;justify-content:center;font-size:2rem;">📊</div>
           <div>
@@ -1447,23 +1445,47 @@
 
   // ─── GOOGLE ANALYTICS 4 — DASHBOARD INTEGRADO ─────────────────────
   const GA4_PROPERTY = '542545371';
+  const GA_REDIRECT_URI = 'https://vacinaemcasa.com/admin/dashboard.html';
+  const GA_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
   let gaToken = null;
   let gaChartTimeline = null, gaChartDevices = null, gaChartChannels = null;
+
+  // Extrai token do hash da URL após redirect OAuth
+  function gaExtractTokenFromHash() {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return null;
+    const params = new URLSearchParams(hash);
+    const token = params.get('access_token');
+    if (token) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      return token;
+    }
+    return null;
+  }
 
   function initGAPanel() {
     const clientId = localStorage.getItem('vic_ga_client_id') || '';
     const bar = document.getElementById('ga-connect-bar');
-    if (!bar) return;
-    bar.style.display = '';
     const setupStep = document.getElementById('ga-setup-step');
     const input = document.getElementById('ga-client-id-input');
+    if (bar) bar.style.display = '';
     if (clientId) {
       if (input) input.value = clientId;
       if (setupStep) setupStep.style.display = 'none';
     }
-    // Reutilizar token da sessão se disponível
+
+    // 1) Token vindo do redirect OAuth (hash da URL)
+    const hashToken = gaExtractTokenFromHash();
+    if (hashToken) {
+      gaToken = hashToken;
+      sessionStorage.setItem('vic_ga_token', gaToken);
+      showGADashboard();
+      gaLoadAll();
+      return;
+    }
+    // 2) Token em cache na sessão
     const cached = sessionStorage.getItem('vic_ga_token');
-    if (cached && clientId) {
+    if (cached) {
       gaToken = cached;
       showGADashboard();
       gaLoadAll();
@@ -1473,7 +1495,7 @@
   function saveGaClientId() {
     const val = (document.getElementById('ga-client-id-input')?.value || '').trim();
     if (!val || !val.includes('.apps.googleusercontent.com')) {
-      alert('Client ID inválido. Deve terminar em .apps.googleusercontent.com\nEx: 123456789-abc.apps.googleusercontent.com');
+      alert('Client ID inválido. Deve terminar em .apps.googleusercontent.com');
       return;
     }
     localStorage.setItem('vic_ga_client_id', val);
@@ -1485,15 +1507,7 @@
     const errEl = document.getElementById('ga-signin-error');
     if (!errEl) return;
     errEl.textContent = msg;
-    errEl.style.display = '';
-    errEl.style.padding = '.6rem 1rem';
-    errEl.style.background = '#fef2f2';
-    errEl.style.border = '1px solid #fca5a5';
-    errEl.style.borderRadius = '8px';
-    errEl.style.fontSize = '.85rem';
-    errEl.style.fontWeight = '500';
-    errEl.style.color = '#b91c1c';
-    errEl.style.marginTop = '.5rem';
+    errEl.style.cssText = 'display:block;padding:.6rem 1rem;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:.85rem;font-weight:500;color:#b91c1c;margin-top:.5rem;';
   }
 
   function gaSignIn() {
@@ -1501,60 +1515,38 @@
     const errEl = document.getElementById('ga-signin-error');
     if (errEl) errEl.style.display = 'none';
     if (!clientId) {
-      document.getElementById('ga-setup-step').style.display = '';
+      const s = document.getElementById('ga-setup-step');
+      if (s) s.style.display = '';
       gaShowError('Configure o Client ID primeiro e clique em Salvar.');
       return;
     }
-    if (typeof google === 'undefined' || !google.accounts) {
-      // GIS not loaded yet — wait up to 5s and retry
-      const btn = document.getElementById('ga-signin-btn');
-      if (btn) { btn.disabled = true; btn.style.opacity = '.6'; btn.lastChild.textContent = ' Carregando Google...'; }
-      let tries = 0;
-      const wait = setInterval(() => {
-        tries++;
-        if (typeof google !== 'undefined' && google.accounts) {
-          clearInterval(wait);
-          if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.lastChild.textContent = ' Entrar com Google'; }
-          gaSignIn();
-        } else if (tries >= 10) {
-          clearInterval(wait);
-          if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.lastChild.textContent = ' Entrar com Google'; }
-          gaShowError('Não foi possível carregar a biblioteca do Google. Verifique sua conexão e recarregue a página.');
-        }
-      }, 500);
-      return;
-    }
-    const client = google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: 'https://www.googleapis.com/auth/analytics.readonly',
-      callback: (resp) => {
-        if (resp.error) {
-          gaShowError('Erro ao autenticar: ' + (resp.error_description || resp.error));
-          return;
-        }
-        gaToken = resp.access_token;
-        sessionStorage.setItem('vic_ga_token', gaToken);
-        if (errEl) errEl.style.display = 'none';
-        showGADashboard();
-        gaLoadAll();
-      }
-    });
-    client.requestAccessToken();
+    // Redirect OAuth — sem popup, sem biblioteca externa
+    const url = 'https://accounts.google.com/o/oauth2/v2/auth'
+      + '?client_id=' + encodeURIComponent(clientId)
+      + '&redirect_uri=' + encodeURIComponent(GA_REDIRECT_URI)
+      + '&response_type=token'
+      + '&scope=' + encodeURIComponent(GA_SCOPE)
+      + '&prompt=select_account';
+    window.location.href = url;
   }
 
   function gaSignOut() {
     gaToken = null;
     sessionStorage.removeItem('vic_ga_token');
-    document.getElementById('ga-dashboard').style.display = 'none';
-    document.getElementById('ga-connect-bar').style.display = '';
+    const db = document.getElementById('ga-dashboard');
+    const bar = document.getElementById('ga-connect-bar');
+    if (db) db.style.display = 'none';
+    if (bar) bar.style.display = '';
     if (gaChartTimeline) { gaChartTimeline.destroy(); gaChartTimeline = null; }
-    if (gaChartDevices) { gaChartDevices.destroy(); gaChartDevices = null; }
+    if (gaChartDevices)  { gaChartDevices.destroy();  gaChartDevices = null; }
     if (gaChartChannels) { gaChartChannels.destroy(); gaChartChannels = null; }
   }
 
   function showGADashboard() {
-    document.getElementById('ga-connect-bar').style.display = 'none';
-    document.getElementById('ga-dashboard').style.display = '';
+    const bar = document.getElementById('ga-connect-bar');
+    const db  = document.getElementById('ga-dashboard');
+    if (bar) bar.style.display = 'none';
+    if (db)  db.style.display = '';
   }
 
   async function ga4Api(body) {
@@ -1563,6 +1555,7 @@
       { method: 'POST', headers: { 'Authorization': `Bearer ${gaToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
     if (resp.status === 401) { gaSignOut(); throw new Error('Token expirado'); }
+    if (!resp.ok) { const t = await resp.text(); throw new Error('GA4 API: ' + t); }
     return resp.json();
   }
 
@@ -1672,12 +1665,15 @@
     }).join('');
   }
 
-  // Inicializa painel GA quando entrar nele
+  // Inicializa painel GA quando entrar nele (já chamado no load também)
   const _origShowPanel2 = showPanel;
   showPanel = function(id, btn) {
     _origShowPanel2(id, btn);
     if (id === 'analytics') initGAPanel();
   };
+
+  // Verifica token OAuth no hash imediatamente (após redirect do Google)
+  initGAPanel();
 </script>
 </body>
 </html>
