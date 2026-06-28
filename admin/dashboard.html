@@ -5,14 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Admin — Vacina em Casa</title>
   <meta name="robots" content="noindex, nofollow">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#059669">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <!-- Google Identity Services (OAuth) -->
+  <script src="https://accounts.google.com/gsi/client" async></script>
 
   <!-- Google Analytics GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4RMSVFZ8V4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
+    gtag('config', 'G-4RMSVFZ8V4');
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -154,6 +162,11 @@
 
     /* ── MINI BAR ── */
     .bar-list { display: flex; flex-direction: column; gap: .85rem; }
+    .ga-link-card { display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;border:1px solid var(--br);border-radius:10px;text-decoration:none;color:var(--tx);transition:box-shadow .15s,border-color .15s; }
+    .ga-link-card:hover { border-color:var(--p);box-shadow:0 2px 8px rgba(5,150,105,.12); }
+    .ga-link-icon { width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0; }
+    .ga-link-title { font-size:.85rem;font-weight:600;color:var(--tx); }
+    .ga-link-sub { font-size:.75rem;color:var(--tm);margin-top:2px; }
     .bar-item label { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: 4px; }
     .bar-item label span:first-child { color: var(--ts); font-weight: 500; }
     .bar-item label span:last-child { font-weight: 700; color: #0f172a; }
@@ -335,6 +348,11 @@
       <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Franqueados
       <span class="badge" id="badge-franqueados">0</span>
+    </button>
+    <button class="sb-link" onclick="showPanel('leads', this)">
+      <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Candidatos Franquia
+      <span class="badge" id="badge-leads" style="background:var(--g);">0</span>
     </button>
 
     <div class="sb-section">Analytics</div>
@@ -787,64 +805,176 @@
   </div>
 </div>
 
+    <!-- ── PANEL: CANDIDATOS FRANQUIA ── -->
+<div class="panel" id="panel-leads">
+  <div class="fran-metrics">
+    <div class="metric">
+      <div class="metric-top"><span class="metric-label">Total de Leads</span><div class="metric-icon mi-blue"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
+      <div class="metric-value" id="leads-total">0</div><div class="metric-delta" style="color:var(--tm);">candidatos</div>
+    </div>
+    <div class="metric">
+      <div class="metric-top"><span class="metric-label">Novos (hoje)</span><div class="metric-icon mi-green"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="metric-value" id="leads-today">0</div><div class="metric-delta delta-up">recebidos hoje</div>
+    </div>
+    <div class="metric">
+      <div class="metric-top"><span class="metric-label">Contatados</span><div class="metric-icon mi-amber"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5 19.79 19.79 0 0 1 1.61 2.84 2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.09a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.72 15z"/></svg></div></div>
+      <div class="metric-value" id="leads-contacted">0</div><div class="metric-delta" style="color:var(--a);">em andamento</div>
+    </div>
+    <div class="metric">
+      <div class="metric-top"><span class="metric-label">Convertidos</span><div class="metric-icon mi-green"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div></div>
+      <div class="metric-value" id="leads-converted">0</div><div class="metric-delta delta-up">viraram franqueados</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fran-toolbar">
+      <input type="text" id="leads-search" placeholder="Buscar por nome, e-mail ou estado..." oninput="renderLeads()" style="flex:1;min-width:180px;padding:.5rem .9rem;border:1.5px solid var(--br);border-radius:9px;font-size:.85rem;font-family:inherit;outline:none;">
+      <select id="leads-filter" onchange="renderLeads()" style="padding:.5rem .9rem;border:1.5px solid var(--br);border-radius:9px;font-size:.85rem;font-family:inherit;outline:none;">
+        <option value="">Todos os status</option>
+        <option value="novo">Novo</option>
+        <option value="contatado">Contatado</option>
+        <option value="convertido">Convertido</option>
+        <option value="descartado">Descartado</option>
+      </select>
+      <button class="btn-new" onclick="clearLeads()" style="background:var(--r);">
+        <svg viewBox="0 0 24 24" stroke-width="2.5" fill="none" style="width:14px;height:14px;stroke:#fff"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Limpar todos
+      </button>
+    </div>
+    <table id="leads-table">
+      <thead>
+        <tr>
+          <th>Nome</th><th>WhatsApp</th><th>E-mail</th><th>Estado</th><th>Capital</th><th>Data</th><th>Status</th><th style="text-align:center;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="leads-tbody"></tbody>
+    </table>
+    <div id="leads-empty" style="text-align:center;padding:3rem;color:var(--tm);">
+      <svg viewBox="0 0 24 24" stroke-width="1.5" style="width:40px;height:40px;stroke:var(--br);fill:none;margin:0 auto .75rem;display:block;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <p style="font-size:.9rem;font-weight:600;">Nenhum candidato ainda</p>
+      <p style="font-size:.8rem;margin-top:4px;">Os leads da página <a href="/franquia.html" target="_blank" style="color:var(--p);">franquia.html</a> aparecerão aqui automaticamente.</p>
+    </div>
+  </div>
+</div>
+
     <!-- ── PANEL: ANALYTICS ── -->
     <div class="panel" id="panel-analytics">
-      <div class="card" style="margin-bottom:1rem;">
-        <div class="card-hdr"><span class="card-title">Google Analytics 4 — Integração</span></div>
-        <div class="ga-note">
-          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <p>
-            O GA4 está integrado ao site com o ID <strong>G-XXXXXXXXXX</strong> (placeholder). Para ativar os dados reais, substitua <code>G-XXXXXXXXXX</code> pelo seu Measurement ID no arquivo <code>index.html</code> e em <code>admin/dashboard.html</code>. Acesse sua conta em <a href="https://analytics.google.com" target="_blank" rel="noopener">analytics.google.com</a> → Administrador → Criar Propriedade GA4 → Obter o ID de medição.
-            <br><br>
-            <strong>Eventos rastreados automaticamente:</strong> page_view, scroll, click, session_start — mais evento personalizado <code>open_booking_modal</code> (dispara ao abrir o formulário de agendamento).
-          </p>
-        </div>
-        <div class="ga-stats">
-          <div class="ga-stat"><div class="n" id="ga-users">—</div><div class="l">Usuários Ativos</div></div>
-          <div class="ga-stat"><div class="n" id="ga-sessions">—</div><div class="l">Sessões / 30 dias</div></div>
-          <div class="ga-stat"><div class="n" id="ga-conversion">—</div><div class="l">Taxa de Conversão</div></div>
+
+      <!-- ── Barra de conexão GA ── -->
+      <div id="ga-connect-bar" class="card" style="margin-bottom:1rem;display:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;padding:2rem 1.5rem;text-align:center;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#e0f2fe,#f0fdf4);display:flex;align-items:center;justify-content:center;font-size:2rem;">📊</div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:700;color:#0f172a;margin-bottom:.4rem;">Conectar Google Analytics</div>
+            <div style="font-size:.85rem;color:#64748b;max-width:460px;line-height:1.6;">Faça login com sua conta Google para ver sessões, usuários, páginas, dispositivos e muito mais diretamente aqui no painel.</div>
+          </div>
+          <!-- Setup Client ID -->
+          <div id="ga-setup-step" style="width:100%;max-width:480px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem 1.25rem;text-align:left;">
+            <div style="font-size:.82rem;font-weight:600;color:#374151;margin-bottom:.5rem;">⚙️ Configuração única (1ª vez)</div>
+            <div style="font-size:.78rem;color:#6b7280;line-height:1.6;margin-bottom:.75rem;">
+              Insira o <strong>OAuth 2.0 Client ID</strong> do Google Cloud.
+              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#059669;">Criar em console.cloud.google.com →</a><br>
+              <span style="color:#94a3b8;">Tipo: Aplicativo da Web · Origem autorizada: https://vacinaemcasa.com</span>
+            </div>
+            <div style="display:flex;gap:.5rem;">
+              <input type="text" id="ga-client-id-input" placeholder="123456789-abc.apps.googleusercontent.com"
+                style="flex:1;padding:.55rem .75rem;border:1px solid #d1d5db;border-radius:8px;font-size:.8rem;font-family:inherit;"
+                value="">
+              <button onclick="saveGaClientId()" style="padding:.55rem 1rem;background:#059669;color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">Salvar</button>
+            </div>
+          </div>
+          <button id="ga-signin-btn" onclick="gaSignIn()"
+            style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1.75rem;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;cursor:pointer;font-family:inherit;font-size:.9rem;font-weight:600;color:#374151;transition:box-shadow .15s;"
+            onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow='none'">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Entrar com Google
+          </button>
+          <div id="ga-signin-error" style="font-size:.8rem;color:#ef4444;display:none;"></div>
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">Principais páginas visitadas</span></div>
-          <div class="bar-list">
-            <div class="bar-item"><label><span>/ (Home)</span><span>1.842</span></label><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
-            <div class="bar-item"><label><span>#vacinas</span><span>1.204</span></label><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div></div>
-            <div class="bar-item"><label><span>#empresas</span><span>548</span></label><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div></div>
-            <div class="bar-item"><label><span>#faq</span><span>402</span></label><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div>
-            <div class="bar-item"><label><span>#como-funciona</span><span>318</span></label><div class="bar-track"><div class="bar-fill" style="width:17%"></div></div></div>
+      <!-- ── Dashboard GA (após login) ── -->
+      <div id="ga-dashboard" style="display:none;">
+
+        <!-- Topo: info usuário + período + desconectar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <img id="ga-user-photo" src="" alt="" width="32" height="32" style="border-radius:50%;display:none;">
+            <div>
+              <div style="font-size:.82rem;font-weight:600;color:#0f172a;" id="ga-user-name">Google Analytics</div>
+              <div style="font-size:.75rem;color:#64748b;">Propriedade: Vacina em Casa (542545371)</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <select id="ga-period" onchange="gaLoadAll()" style="padding:.4rem .75rem;border:1px solid #d1d5db;border-radius:8px;font-size:.8rem;font-family:inherit;background:#fff;cursor:pointer;">
+              <option value="7">Últimos 7 dias</option>
+              <option value="30" selected>Últimos 30 dias</option>
+              <option value="90">Últimos 90 dias</option>
+            </select>
+            <button onclick="gaSignOut()" style="padding:.4rem .85rem;border:1px solid #fecaca;border-radius:8px;font-size:.78rem;font-weight:600;color:#ef4444;background:#fff;cursor:pointer;font-family:inherit;">Desconectar</button>
           </div>
         </div>
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">Origem do tráfego</span></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
-              <circle cx="55" cy="55" r="40" fill="none" stroke="#e2e8f0" stroke-width="18"/>
-              <circle cx="55" cy="55" r="40" fill="none" stroke="#0891b2" stroke-width="18" stroke-dasharray="100 151" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
-              <circle cx="55" cy="55" r="40" fill="none" stroke="#059669" stroke-width="18" stroke-dasharray="60 191" stroke-dashoffset="-100" transform="rotate(-90 55 55)"/>
-              <circle cx="55" cy="55" r="40" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="40 211" stroke-dashoffset="-160" transform="rotate(-90 55 55)"/>
-              <circle cx="55" cy="55" r="40" fill="none" stroke="#e0e7ff" stroke-width="18" stroke-dasharray="51 200" stroke-dashoffset="-200" transform="rotate(-90 55 55)"/>
-            </svg>
-            <div class="donut-legend">
-              <div class="dl-item"><div class="dl-dot" style="background:#0891b2"></div><span class="dl-label">Orgânico (Google)</span><span class="dl-val">40%</span></div>
-              <div class="dl-item"><div class="dl-dot" style="background:#059669"></div><span class="dl-label">Redes Sociais</span><span class="dl-val">24%</span></div>
-              <div class="dl-item"><div class="dl-dot" style="background:#f59e0b"></div><span class="dl-label">WhatsApp / Direto</span><span class="dl-val">16%</span></div>
-              <div class="dl-item"><div class="dl-dot" style="background:#e0e7ff"></div><span class="dl-label">Outros</span><span class="dl-val">20%</span></div>
+
+        <!-- KPIs -->
+        <div class="metrics" style="margin-bottom:1rem;" id="ga-kpis">
+          <div class="metric"><div class="metric-top"><span class="metric-label">Sessões</span><div class="metric-icon mi-blue"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div></div><div class="metric-value" id="gak-sessions">—</div><div class="metric-delta" id="gak-sessions-d">carregando…</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">Usuários Ativos</span><div class="metric-icon mi-green"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="metric-value" id="gak-users">—</div><div class="metric-delta" id="gak-users-d">carregando…</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">Visualizações</span><div class="metric-icon mi-amber"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div><div class="metric-value" id="gak-views">—</div><div class="metric-delta" id="gak-views-d">carregando…</div></div>
+          <div class="metric"><div class="metric-top"><span class="metric-label">Duração Média</span><div class="metric-icon mi-green"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div><div class="metric-value" id="gak-duration">—</div><div class="metric-delta" id="gak-duration-d">carregando…</div></div>
+        </div>
+
+        <!-- Gráficos linha + dispositivos -->
+        <div class="grid-2" style="margin-bottom:1rem;">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Sessões & Usuários por Dia</span></div>
+            <div style="position:relative;height:220px;"><canvas id="ga-chart-timeline"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Dispositivos</span></div>
+            <div style="position:relative;height:220px;display:flex;align-items:center;justify-content:center;">
+              <canvas id="ga-chart-devices" style="max-height:200px;"></canvas>
             </div>
           </div>
         </div>
+
+        <!-- Canais + Páginas -->
+        <div class="grid-2" style="margin-bottom:1rem;">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Canais de Aquisição</span></div>
+            <div style="position:relative;height:220px;"><canvas id="ga-chart-channels"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Top Páginas</span></div>
+            <div id="ga-pages-list" style="overflow-y:auto;max-height:220px;">
+              <p style="font-size:.8rem;color:#94a3b8;padding:.5rem 0;">Carregando…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Localização + Leads locais -->
+        <div class="grid-2" style="margin-bottom:1rem;">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Top Regiões (Brasil)</span></div>
+            <div id="ga-geo-list" style="overflow-y:auto;max-height:260px;">
+              <p style="font-size:.8rem;color:#94a3b8;padding:.5rem 0;">Carregando…</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Leads por Estado</span><button class="card-action" onclick="showPanel('leads', document.querySelectorAll('.sb-link')[6])">Ver lista →</button></div>
+            <div id="ga-leads-by-state" class="bar-list">
+              <p style="font-size:.85rem;color:var(--tm);padding:.5rem 0;">Nenhum lead captado ainda.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="card">
-        <div class="card-hdr"><span class="card-title">Acessar Google Analytics completo</span></div>
-        <a href="https://analytics.google.com" target="_blank" rel="noopener" class="btn-new" style="display:inline-flex;text-decoration:none;">
-          <svg viewBox="0 0 24 24" stroke-width="2" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Abrir Google Analytics →
-        </a>
-        <p style="font-size:.78rem;color:var(--tm);margin-top:.75rem;">Abre na sua conta Google Analytics com todos os relatórios em tempo real, funil de conversão e comportamento de usuários.</p>
+      <!-- Loading spinner -->
+      <div id="ga-loading" style="display:none;text-align:center;padding:3rem;color:#64748b;">
+        <div style="font-size:1.5rem;margin-bottom:.75rem;">⏳</div>
+        <div style="font-size:.9rem;">Carregando dados do Google Analytics…</div>
       </div>
+
     </div>
 
     <!-- ── PANEL: SETTINGS ── -->
@@ -871,7 +1001,7 @@
           <div class="card">
             <div class="card-hdr"><span class="card-title">Google Analytics</span></div>
             <div class="settings-grid">
-              <div class="sfg"><label>Measurement ID (GA4)</label><input type="text" id="ga-id-input" value="G-XXXXXXXXXX" placeholder="G-XXXXXXXXXX"></div>
+              <div class="sfg"><label>Measurement ID (GA4)</label><input type="text" id="ga-id-input" value="G-4RMSVFZ8V4" placeholder="G-4RMSVFZ8V4"></div>
               <p style="font-size:.78rem;color:var(--tm);">Cole aqui o Measurement ID da sua propriedade GA4. Após salvar, substitua manualmente nos arquivos index.html e admin/dashboard.html.</p>
               <button class="btn-save" onclick="saveGaId()">Salvar Measurement ID</button>
             </div>
@@ -933,7 +1063,7 @@
   document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
   // Panel navigation
-  const panels = { overview: 'Visão Geral', agendamentos: 'Agendamentos', vacinas: 'Catálogo de Vacinas', clientes: 'Clientes', editor: 'Editor do Site', franqueados: 'Franqueados', analytics: 'Google Analytics', settings: 'Configurações' };
+  const panels = { overview: 'Visão Geral', agendamentos: 'Agendamentos', vacinas: 'Catálogo de Vacinas', clientes: 'Clientes', editor: 'Editor do Site', franqueados: 'Franqueados', leads: 'Candidatos a Franqueado', analytics: 'Google Analytics', settings: 'Configurações' };
 
   function showPanel(id, btn) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -955,7 +1085,7 @@
   // GA ID save helper
   function saveGaId() {
     const id = document.getElementById('ga-id-input').value.trim();
-    alert('Measurement ID salvo: ' + id + '\n\nSubstitua manualmente G-XXXXXXXXXX nos arquivos:\n• index.html (3 ocorrências)\n• admin/index.html (2 ocorrências)\n• admin/dashboard.html (2 ocorrências)');
+    alert('Measurement ID salvo: ' + id + '\n\nSubstitua manualmente G-4RMSVFZ8V4 nos arquivos:\n• index.html (3 ocorrências)\n• admin/index.html (2 ocorrências)\n• admin/dashboard.html (2 ocorrências)');
   }
 
   // ─── EDITOR DO SITE ───────────────────────────────────────────────
@@ -1122,12 +1252,432 @@
     if (e.target === this) closeFranModal();
   });
 
-  // Simulate GA stats loading
-  setTimeout(() => {
-    document.getElementById('ga-users').textContent = '—';
-    document.getElementById('ga-sessions').textContent = '—';
-    document.getElementById('ga-conversion').textContent = '—';
-  }, 1000);
+  // ─── CANDIDATOS FRANQUIA (LEADS) ───────────────────────────────────
+
+  function getLeads() {
+    return JSON.parse(localStorage.getItem('vic_fran_leads') || '[]');
+  }
+
+  function saveLeads(list) {
+    localStorage.setItem('vic_fran_leads', JSON.stringify(list));
+  }
+
+  function updateLeadBadge() {
+    const leads = getLeads();
+    const badge = document.getElementById('badge-leads');
+    if (badge) badge.textContent = leads.length;
+  }
+
+  function updateLeadMetrics() {
+    const leads = getLeads();
+    const today = new Date().toLocaleDateString('pt-BR');
+    document.getElementById('leads-total').textContent = leads.length;
+    document.getElementById('leads-today').textContent = leads.filter(l => l.date === today).length;
+    document.getElementById('leads-contacted').textContent = leads.filter(l => l.status === 'contatado').length;
+    document.getElementById('leads-converted').textContent = leads.filter(l => l.status === 'convertido').length;
+    // badge sidebar
+    updateLeadBadge();
+    // analytics panel counter
+    const gaCount = document.getElementById('ga-leads-count');
+    if (gaCount) gaCount.textContent = leads.length;
+    // leads por estado no painel analytics
+    renderLeadsByState(leads);
+  }
+
+  function renderLeadsByState(leads) {
+    const el = document.getElementById('ga-leads-by-state');
+    if (!el) return;
+    if (!leads.length) return;
+    const byState = {};
+    leads.forEach(l => { if (l.state) byState[l.state] = (byState[l.state] || 0) + 1; });
+    const sorted = Object.entries(byState).sort((a,b) => b[1]-a[1]);
+    const max = sorted[0]?.[1] || 1;
+    el.innerHTML = sorted.map(([state, count]) => `
+      <div class="bar-item">
+        <label><span>${state}</span><span>${count} lead${count>1?'s':''}</span></label>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(count/max*100)}%"></div></div>
+      </div>
+    `).join('');
+  }
+
+  function renderLeads() {
+    const leads = getLeads();
+    const search = (document.getElementById('leads-search')?.value || '').toLowerCase();
+    const filter = document.getElementById('leads-filter')?.value || '';
+    const list = leads.filter(l => {
+      const matchSearch = !search || [l.name, l.email, l.state, l.phone].some(v => (v||'').toLowerCase().includes(search));
+      const matchFilter = !filter || l.status === filter;
+      return matchSearch && matchFilter;
+    });
+    const tbody = document.getElementById('leads-tbody');
+    const empty = document.getElementById('leads-empty');
+    if (!list.length) {
+      tbody.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      updateLeadMetrics();
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    const statusClass = { novo: 'pill-pending', contatado: 'pill-done', convertido: 'pill-confirmed', descartado: 'pill-cancelled' };
+    const statusLabel = { novo: 'Novo', contatado: 'Contatado', convertido: 'Convertido', descartado: 'Descartado' };
+    tbody.innerHTML = list.map(l => `
+      <tr>
+        <td><strong>${l.name || '—'}</strong></td>
+        <td>${l.phone ? `<a href="https://wa.me/55${l.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--g);font-weight:600;">${l.phone}</a>` : '—'}</td>
+        <td>${l.email || '—'}</td>
+        <td><strong>${l.state || '—'}</strong></td>
+        <td style="font-size:.78rem;">${l.capital || '—'}</td>
+        <td style="font-size:.78rem;color:var(--tm);">${l.date || '—'}</td>
+        <td>
+          <select onchange="updateLeadStatus('${l.id}', this.value)" style="padding:3px 8px;border:1.5px solid var(--br);border-radius:8px;font-size:.75rem;font-family:inherit;outline:none;cursor:pointer;">
+            <option value="novo" ${l.status==='novo'?'selected':''}>Novo</option>
+            <option value="contatado" ${l.status==='contatado'?'selected':''}>Contatado</option>
+            <option value="convertido" ${l.status==='convertido'?'selected':''}>Convertido</option>
+            <option value="descartado" ${l.status==='descartado'?'selected':''}>Descartado</option>
+          </select>
+        </td>
+        <td style="text-align:center;display:flex;gap:4px;justify-content:center;align-items:center;">
+          ${l.phone ? `<a href="https://wa.me/55${l.phone.replace(/\D/g,'')}" target="_blank" class="btn-icon" title="WhatsApp" style="color:var(--g)"><svg viewBox="0 0 24 24" stroke-width="2" style="width:15px;height:15px;stroke:currentColor;fill:none;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5 19.79 19.79 0 0 1 1.61 2.84 2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.09a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.72 15z"/></svg></a>` : ''}
+          <button class="btn-icon" onclick="convertLeadToFranqueado('${l.id}')" title="Converter em Franqueado"><svg viewBox="0 0 24 24" stroke-width="2" style="width:15px;height:15px;stroke:var(--p);fill:none;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+          <button class="btn-icon" onclick="deleteLead('${l.id}')" title="Excluir" style="color:var(--r)"><svg viewBox="0 0 24 24" stroke-width="2" style="width:15px;height:15px;stroke:currentColor;fill:none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg></button>
+        </td>
+      </tr>
+    `).join('');
+    updateLeadMetrics();
+  }
+
+  function updateLeadStatus(id, status) {
+    const leads = getLeads();
+    const idx = leads.findIndex(l => l.id === id);
+    if (idx >= 0) { leads[idx].status = status; saveLeads(leads); updateLeadMetrics(); }
+  }
+
+  function deleteLead(id) {
+    if (!confirm('Excluir este candidato?')) return;
+    saveLeads(getLeads().filter(l => l.id !== id));
+    renderLeads();
+  }
+
+  function clearLeads() {
+    if (!confirm('Excluir TODOS os candidatos? Esta ação não pode ser desfeita.')) return;
+    saveLeads([]);
+    renderLeads();
+  }
+
+  function convertLeadToFranqueado(id) {
+    const lead = getLeads().find(l => l.id === id);
+    if (!lead) return;
+    // pre-fill franqueado modal
+    showPanel('franqueados', document.querySelectorAll('.sb-link')[5]);
+    setTimeout(() => {
+      openFranModal();
+      document.getElementById('fm-name').value = lead.name || '';
+      document.getElementById('fm-email').value = lead.email || '';
+      document.getElementById('fm-phone').value = lead.phone || '';
+      document.getElementById('fm-state').value = lead.state || 'SP';
+      document.getElementById('fm-status').value = 'prospect';
+      document.getElementById('fm-notes').value = `Lead vindo de /franquia.html em ${lead.date}. Capital: ${lead.capital}.`;
+    }, 100);
+    // mark as converted
+    updateLeadStatus(id, 'convertido');
+  }
+
+  // Init leads
+  renderLeads();
+
+  // ─── GA ID ──────────────────────────────────────────────────────────
+
+  function loadGaId() {
+    const saved = localStorage.getItem('vic_ga_id') || '';
+    const input = document.getElementById('ga-id-input');
+    const display = document.getElementById('ga-id-display');
+    if (saved && saved !== 'G-4RMSVFZ8V4') {
+      if (input) input.value = saved;
+      if (display) display.textContent = saved;
+      document.getElementById('ga-setup-banner').style.display = 'none';
+    } else {
+      if (display) display.textContent = 'Não configurado';
+      document.getElementById('ga-setup-banner').style.display = 'flex';
+    }
+  }
+
+  function saveAndApplyGaId() {
+    const id = (document.getElementById('ga-id-input')?.value || '').trim();
+    if (!id.match(/^G-[A-Z0-9]+$/i)) {
+      alert('ID inválido. O formato deve ser G-4RMSVFZ8V4 (ex: G-ABC123456).');
+      return;
+    }
+    localStorage.setItem('vic_ga_id', id);
+    document.getElementById('ga-id-display').textContent = id;
+    document.getElementById('ga-setup-banner').style.display = 'none';
+    alert('✓ Measurement ID salvo: ' + id + '\n\nPara ativar nos arquivos do site, substitua "G-4RMSVFZ8V4" por "' + id + '" em:\n• index.html\n• admin/index.html\n• admin/dashboard.html\n• franquia.html');
+  }
+
+  // GA ID save helper (legacy, usado em Configurações)
+  function saveGaId() { saveAndApplyGaId(); }
+
+  // Init GA
+  loadGaId();
+  updateLeadBadge();
+
+  // ── PWA / Service Worker ──────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
+  // Limpa badge e contador de não-lidos quando admin abre o painel de leads
+  function clearLeadBadge() {
+    localStorage.setItem('vic_unread_leads', '0');
+    if ('setAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
+    // Informa o SW para limpar o badge também
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_BADGE' });
+    }
+  }
+
+  // Substitui showPanel para limpar badge ao entrar em 'leads'
+  const _origShowPanel = showPanel;
+  showPanel = function(id, btn) {
+    _origShowPanel(id, btn);
+    if (id === 'leads') clearLeadBadge();
+  };
+
+  // Limpa badge se admin já está no painel de leads
+  if (window.location.hash === '#leads') clearLeadBadge();
+
+  // ─── GOOGLE ANALYTICS 4 — DASHBOARD INTEGRADO ─────────────────────
+  const GA4_PROPERTY = '542545371';
+  let gaToken = null;
+  let gaChartTimeline = null, gaChartDevices = null, gaChartChannels = null;
+
+  function initGAPanel() {
+    const clientId = localStorage.getItem('vic_ga_client_id') || '';
+    const bar = document.getElementById('ga-connect-bar');
+    if (!bar) return;
+    bar.style.display = '';
+    const setupStep = document.getElementById('ga-setup-step');
+    const input = document.getElementById('ga-client-id-input');
+    if (clientId) {
+      if (input) input.value = clientId;
+      if (setupStep) setupStep.style.display = 'none';
+    }
+    // Reutilizar token da sessão se disponível
+    const cached = sessionStorage.getItem('vic_ga_token');
+    if (cached && clientId) {
+      gaToken = cached;
+      showGADashboard();
+      gaLoadAll();
+    }
+  }
+
+  function saveGaClientId() {
+    const val = (document.getElementById('ga-client-id-input')?.value || '').trim();
+    if (!val || !val.includes('.apps.googleusercontent.com')) {
+      alert('Client ID inválido. Deve terminar em .apps.googleusercontent.com\nEx: 123456789-abc.apps.googleusercontent.com');
+      return;
+    }
+    localStorage.setItem('vic_ga_client_id', val);
+    document.getElementById('ga-setup-step').style.display = 'none';
+    alert('✓ Client ID salvo! Agora clique em "Entrar com Google".');
+  }
+
+  function gaShowError(msg) {
+    const errEl = document.getElementById('ga-signin-error');
+    if (!errEl) return;
+    errEl.textContent = msg;
+    errEl.style.display = '';
+    errEl.style.padding = '.6rem 1rem';
+    errEl.style.background = '#fef2f2';
+    errEl.style.border = '1px solid #fca5a5';
+    errEl.style.borderRadius = '8px';
+    errEl.style.fontSize = '.85rem';
+    errEl.style.fontWeight = '500';
+    errEl.style.color = '#b91c1c';
+    errEl.style.marginTop = '.5rem';
+  }
+
+  function gaSignIn() {
+    const clientId = localStorage.getItem('vic_ga_client_id') || '';
+    const errEl = document.getElementById('ga-signin-error');
+    if (errEl) errEl.style.display = 'none';
+    if (!clientId) {
+      document.getElementById('ga-setup-step').style.display = '';
+      gaShowError('Configure o Client ID primeiro e clique em Salvar.');
+      return;
+    }
+    if (typeof google === 'undefined' || !google.accounts) {
+      // GIS not loaded yet — wait up to 5s and retry
+      const btn = document.getElementById('ga-signin-btn');
+      if (btn) { btn.disabled = true; btn.style.opacity = '.6'; btn.lastChild.textContent = ' Carregando Google...'; }
+      let tries = 0;
+      const wait = setInterval(() => {
+        tries++;
+        if (typeof google !== 'undefined' && google.accounts) {
+          clearInterval(wait);
+          if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.lastChild.textContent = ' Entrar com Google'; }
+          gaSignIn();
+        } else if (tries >= 10) {
+          clearInterval(wait);
+          if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.lastChild.textContent = ' Entrar com Google'; }
+          gaShowError('Não foi possível carregar a biblioteca do Google. Verifique sua conexão e recarregue a página.');
+        }
+      }, 500);
+      return;
+    }
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: 'https://www.googleapis.com/auth/analytics.readonly',
+      callback: (resp) => {
+        if (resp.error) {
+          gaShowError('Erro ao autenticar: ' + (resp.error_description || resp.error));
+          return;
+        }
+        gaToken = resp.access_token;
+        sessionStorage.setItem('vic_ga_token', gaToken);
+        if (errEl) errEl.style.display = 'none';
+        showGADashboard();
+        gaLoadAll();
+      }
+    });
+    client.requestAccessToken();
+  }
+
+  function gaSignOut() {
+    gaToken = null;
+    sessionStorage.removeItem('vic_ga_token');
+    document.getElementById('ga-dashboard').style.display = 'none';
+    document.getElementById('ga-connect-bar').style.display = '';
+    if (gaChartTimeline) { gaChartTimeline.destroy(); gaChartTimeline = null; }
+    if (gaChartDevices) { gaChartDevices.destroy(); gaChartDevices = null; }
+    if (gaChartChannels) { gaChartChannels.destroy(); gaChartChannels = null; }
+  }
+
+  function showGADashboard() {
+    document.getElementById('ga-connect-bar').style.display = 'none';
+    document.getElementById('ga-dashboard').style.display = '';
+  }
+
+  async function ga4Api(body) {
+    const resp = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY}:runReport`,
+      { method: 'POST', headers: { 'Authorization': `Bearer ${gaToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    );
+    if (resp.status === 401) { gaSignOut(); throw new Error('Token expirado'); }
+    return resp.json();
+  }
+
+  async function gaLoadAll() {
+    const days = document.getElementById('ga-period')?.value || '30';
+    const sd = `${days}daysAgo`;
+    const loadEl = document.getElementById('ga-loading');
+    if (loadEl) loadEl.style.display = '';
+    try {
+      const [kpi, timeline, devices, channels, pages, geo] = await Promise.all([
+        ga4Api({ dateRanges: [{ startDate: sd, endDate: 'today' }], metrics: [{ name:'sessions' },{ name:'activeUsers' },{ name:'screenPageViews' },{ name:'averageSessionDuration' }] }),
+        ga4Api({ dateRanges: [{ startDate: sd, endDate: 'today' }], dimensions: [{ name:'date' }], metrics: [{ name:'sessions' },{ name:'activeUsers' }], orderBys: [{ dimension:{ dimensionName:'date' } }] }),
+        ga4Api({ dateRanges: [{ startDate: sd, endDate: 'today' }], dimensions: [{ name:'deviceCategory' }], metrics: [{ name:'sessions' }] }),
+        ga4Api({ dateRanges: [{ startDate: sd, endDate: 'today' }], dimensions: [{ name:'sessionDefaultChannelGroup' }], metrics: [{ name:'sessions' }], limit: 8 }),
+        ga4Api({ dateRanges: [{ startDate: sd, endDate: 'today' }], dimensions: [{ name:'pagePath' }], metrics: [{ name:'screenPageViews' }], orderBys: [{ metric:{ metricName:'screenPageViews' }, desc: true }], limit: 10 }),
+        ga4Api({ dateRanges: [{ startDate: sd, endDate: 'today' }], dimensions: [{ name:'region' }], metrics: [{ name:'sessions' }], orderBys: [{ metric:{ metricName:'sessions' }, desc: true }], limit: 10, dimensionFilter:{ filter:{ fieldName:'country', stringFilter:{ value:'Brazil' } } } }),
+      ]);
+      renderGAKPIs(kpi);
+      renderGATimeline(timeline);
+      renderGADevices(devices);
+      renderGAChannels(channels);
+      renderGAPages(pages);
+      renderGAGeo(geo);
+    } catch(e) { console.error('GA4 error', e); }
+    finally { if (loadEl) loadEl.style.display = 'none'; }
+  }
+
+  const fmtN = n => Number(n||0).toLocaleString('pt-BR');
+  const fmtDur = s => { const sec=Math.round(Number(s||0)), m=Math.floor(sec/60), r=sec%60; return m>0?`${m}m ${r}s`:`${sec}s`; };
+
+  function renderGAKPIs(d) {
+    const g = (i) => d.rows?.[0]?.metricValues?.[i]?.value || '0';
+    document.getElementById('gak-sessions').textContent = fmtN(g(0));
+    document.getElementById('gak-users').textContent = fmtN(g(1));
+    document.getElementById('gak-views').textContent = fmtN(g(2));
+    document.getElementById('gak-duration').textContent = fmtDur(g(3));
+    ['sessions','users','views'].forEach(id => { const el=document.getElementById('gak-'+id+'-d'); if(el) el.textContent='no período selecionado'; });
+    const dd = document.getElementById('gak-duration-d'); if(dd) dd.textContent = 'por sessão em média';
+  }
+
+  function renderGATimeline(d) {
+    const rows = d.rows || [];
+    const labels = rows.map(r => { const v=r.dimensionValues[0].value; return `${v.slice(6,8)}/${v.slice(4,6)}`; });
+    const sessions = rows.map(r => Number(r.metricValues[0].value));
+    const users = rows.map(r => Number(r.metricValues[1].value));
+    if (gaChartTimeline) gaChartTimeline.destroy();
+    const ctx = document.getElementById('ga-chart-timeline')?.getContext('2d'); if (!ctx) return;
+    gaChartTimeline = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label:'Sessões', data:sessions, borderColor:'#059669', backgroundColor:'rgba(5,150,105,.1)', tension:.35, fill:true, pointRadius: rows.length>20?0:3, pointHoverRadius:4 },
+        { label:'Usuários', data:users, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.05)', tension:.35, fill:false, pointRadius: rows.length>20?0:3, pointHoverRadius:4 }
+      ]},
+      options: { responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false }, plugins:{ legend:{ position:'top', labels:{ boxWidth:12, font:{ size:11 } } } }, scales:{ y:{ beginAtZero:true, ticks:{ font:{ size:10 } } }, x:{ ticks:{ maxRotation:45, font:{ size:9 }, maxTicksLimit:10 } } } }
+    });
+  }
+
+  function renderGADevices(d) {
+    const rows = (d.rows||[]).sort((a,b)=>Number(b.metricValues[0].value)-Number(a.metricValues[0].value));
+    const lmap = { mobile:'Mobile', desktop:'Desktop', tablet:'Tablet' };
+    const labels = rows.map(r => lmap[r.dimensionValues[0].value] || r.dimensionValues[0].value);
+    const values = rows.map(r => Number(r.metricValues[0].value));
+    if (gaChartDevices) gaChartDevices.destroy();
+    const ctx = document.getElementById('ga-chart-devices')?.getContext('2d'); if (!ctx) return;
+    gaChartDevices = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data:values, backgroundColor:['#059669','#3b82f6','#f59e0b','#ef4444'], borderWidth:3, borderColor:'#fff', hoverOffset:6 }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{ size:11 }, padding:12 } } }, cutout:'62%' }
+    });
+  }
+
+  function renderGAChannels(d) {
+    const rows = (d.rows||[]).sort((a,b)=>Number(b.metricValues[0].value)-Number(a.metricValues[0].value));
+    const labels = rows.map(r => r.dimensionValues[0].value || '(não definido)');
+    const values = rows.map(r => Number(r.metricValues[0].value));
+    const colors = ['#059669','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16'];
+    if (gaChartChannels) gaChartChannels.destroy();
+    const ctx = document.getElementById('ga-chart-channels')?.getContext('2d'); if (!ctx) return;
+    gaChartChannels = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label:'Sessões', data:values, backgroundColor:colors.slice(0,rows.length), borderRadius:6, borderSkipped:false }] },
+      options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ beginAtZero:true, ticks:{ font:{ size:10 } } }, y:{ ticks:{ font:{ size:10 } } } } }
+    });
+  }
+
+  function renderGAPages(d) {
+    const rows = d.rows || [];
+    const el = document.getElementById('ga-pages-list'); if (!el) return;
+    if (!rows.length) { el.innerHTML = '<p style="font-size:.8rem;color:#94a3b8;padding:.5rem 0;">Sem dados disponíveis.</p>'; return; }
+    const max = Number(rows[0]?.metricValues?.[0]?.value || 1);
+    el.innerHTML = rows.map(r => {
+      const path = r.dimensionValues[0].value || '/';
+      const views = Number(r.metricValues[0].value);
+      return `<div style="margin-bottom:.65rem;"><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;"><span style="color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72%;" title="${path}">${path}</span><span style="font-weight:700;color:#0f172a;flex-shrink:0;">${fmtN(views)}</span></div><div style="height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.round(views/max*100)}%;background:#059669;border-radius:2px;transition:width .4s;"></div></div></div>`;
+    }).join('');
+  }
+
+  function renderGAGeo(d) {
+    const rows = d.rows || [];
+    const el = document.getElementById('ga-geo-list'); if (!el) return;
+    if (!rows.length) { el.innerHTML = '<p style="font-size:.8rem;color:#94a3b8;padding:.5rem 0;">Sem dados de região disponíveis.</p>'; return; }
+    const max = Number(rows[0]?.metricValues?.[0]?.value || 1);
+    el.innerHTML = rows.map(r => {
+      const region = r.dimensionValues[0].value || 'Desconhecido';
+      const sessions = Number(r.metricValues[0].value);
+      return `<div style="margin-bottom:.65rem;"><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;"><span style="color:#374151;font-weight:500;">${region}</span><span style="font-weight:700;color:#0f172a;">${fmtN(sessions)} sess.</span></div><div style="height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.round(sessions/max*100)}%;background:#3b82f6;border-radius:2px;transition:width .4s;"></div></div></div>`;
+    }).join('');
+  }
+
+  // Inicializa painel GA quando entrar nele
+  const _origShowPanel2 = showPanel;
+  showPanel = function(id, btn) {
+    _origShowPanel2(id, btn);
+    if (id === 'analytics') initGAPanel();
+  };
 </script>
 </body>
 </html>
