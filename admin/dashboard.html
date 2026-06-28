@@ -1521,11 +1521,13 @@
       return;
     }
     // Redirect OAuth — sem popup, sem biblioteca externa
-    const url = 'https://accounts.google.com/o/oauth2/v2/auth'
+    var gaRedirect = 'https://vacinaemcasa.com/admin/dashboard.html';
+    var gaScope    = 'https://www.googleapis.com/auth/analytics.readonly';
+    var url = 'https://accounts.google.com/o/oauth2/v2/auth'
       + '?client_id=' + encodeURIComponent(clientId)
-      + '&redirect_uri=' + encodeURIComponent(GA_REDIRECT_URI)
+      + '&redirect_uri=' + encodeURIComponent(gaRedirect)
       + '&response_type=token'
-      + '&scope=' + encodeURIComponent(GA_SCOPE)
+      + '&scope=' + encodeURIComponent(gaScope)
       + '&prompt=select_account';
     window.location.href = url;
   }
