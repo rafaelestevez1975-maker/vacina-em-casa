@@ -1656,8 +1656,22 @@
     if (id === 'analytics') initGAPanel();
   };
 
-  // Verifica token OAuth no hash imediatamente (após redirect do Google)
-  initGAPanel();
+  // Ao carregar: detecta retorno do OAuth e abre aba Analytics automaticamente
+  (function() {
+    var hash = window.location.hash.substring(1);
+    if (!hash) return;
+    var params = new URLSearchParams(hash);
+    var token = params.get('access_token');
+    if (token) {
+      // Limpa hash da URL sem reload
+      history.replaceState(null, '', window.location.pathname);
+      // Salva token na sessão
+      sessionStorage.setItem('vic_ga_token', token);
+      // Abre aba Analytics automaticamente
+      var gaBtn = document.querySelector('.sb-link[onclick*="analytics"]');
+      if (gaBtn) showPanel('analytics', gaBtn);
+    }
+  })();
 </script>
 </body>
 </html>
