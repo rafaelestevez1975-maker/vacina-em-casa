@@ -1389,13 +1389,14 @@
     const saved = localStorage.getItem('vic_ga_id') || '';
     const input = document.getElementById('ga-id-input');
     const display = document.getElementById('ga-id-display');
+    const banner = document.getElementById('ga-setup-banner');
     if (saved && saved !== 'G-4RMSVFZ8V4') {
       if (input) input.value = saved;
       if (display) display.textContent = saved;
-      document.getElementById('ga-setup-banner').style.display = 'none';
+      if (banner) banner.style.display = 'none';
     } else {
       if (display) display.textContent = 'Não configurado';
-      document.getElementById('ga-setup-banner').style.display = 'flex';
+      if (banner) banner.style.display = 'flex';
     }
   }
 
@@ -1415,7 +1416,7 @@
   function saveGaId() { saveAndApplyGaId(); }
 
   // Init GA
-  loadGaId();
+  try { loadGaId(); } catch(e) {}
   updateLeadBadge();
 
   // ── PWA / Service Worker ──────────────────────────────────────
